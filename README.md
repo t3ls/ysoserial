@@ -1,3 +1,20 @@
+# 改动
+添加了Tomcat回显的方式
+新添的链
+- CommonsCollections2TomcatEcho
+- CommonsCollections3TomcatEcho
+- CommonsCollections4TomcatEcho
+
+编译时直接跳过tests
+```
+mvn package -DskipTests
+```
+通过如下命令就可以生成基于CommonsCollections2的Tomcat回显payload
+通过cmd参数传入要执行的命令即可
+```
+java -jar ysoserial-0.0.6-SNAPSHOT-all.jar CommonsCollections2TomcatEcho cmd
+```
+![](https://raw.githubusercontent.com/kingkaki/cloud-img/master/img/20200306134256.png)
 
 # ysoserial
 
