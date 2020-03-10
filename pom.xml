@@ -77,6 +77,13 @@
 
 		<!-- testing depedencies -->
         <dependency>
+            <groupId>weblogic</groupId>
+            <artifactId>coherence</artifactId>
+            <scope>system</scope>
+            <version>1.0</version>
+            <systemPath>${project.basedir}/coherence.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-core</artifactId>
             <version>8.5.50</version>

