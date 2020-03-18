@@ -1,6 +1,39 @@
-# 改动
+## 新改动
+
+添加了Tomcat回显的方式
+
 添加了Tomcat回显的方式
 新添的链
+
+-  CommonsBeanutils1TomcatHeader（用于解除tomcat对于request header的大小限制）
+- CommonsBeanutils1TomcatEcho2
+
+- CommonsCollections2TomcatEcho2
+- CommonsCollections3TomcatEcho2
+- CommonsCollections4TomcatEcho2
+
+编译时直接跳过tests
+```
+mvn package -DskipTests
+```
+
+生成回显payload
+
+```
+java -jar ysoserial-0.0.6-SNAPSHOT-all.jar CommonsCollections2TomcatEcho2 "whoami"
+```
+
+改变tomcat header限制
+
+```
+java -jar ysoserial-0.0.6-SNAPSHOT-all.jar  CommonsBeanutils1TomcatHeader 16000
+```
+
+## @kingkk改动
+
+添加了Tomcat回显的方式
+新添的链
+
 - CommonsCollections2TomcatEcho
 - CommonsCollections3TomcatEcho
 - CommonsCollections4TomcatEcho
