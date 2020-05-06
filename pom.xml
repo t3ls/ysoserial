@@ -332,7 +332,13 @@
 			<artifactId>vaadin-server</artifactId>
 			<version>7.7.14</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.liferay.portal</groupId>
+            <artifactId>com.liferay.portal.kernel</artifactId>
+            <version>3.39.2</version>
+        </dependency>
+
+    </dependencies>
 
 	<profiles>
         <profile>

